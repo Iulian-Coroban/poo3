@@ -1,44 +1,36 @@
 #include <iostream>
-#include <vector>
 #include <memory>
-#include "procesor.h"
-#include "placavideo.h"
-#include "memorieram.h"
 #include "sistempc.h"
 #include "exceptii.h"
-#include "hardware_factory.h"
+#include "sistempc_builder.h"
+#include "strategie_testare.h"
 
 int main() 
 {
     try 
     {
-        std::cout << "Testare Validare Date\n";
-        auto p1 = HardwareFactory::getInstance().createProcesor("Core i7", "Intel", -500, 65, "LGA1700", 8, 3.6);
+        SistemPCBuilder builder;
+        
+        SistemPC pcGaming = builder.setNume("Gaming Beast 2026")
+                                   .adaugaProcesor("Ryzen 9", "AMD", 2500, 105, "AM5", 12, 4.2)
+                                   .adaugaPlacaVideo("RTX 5090", "NVIDIA", 9000, 450, 24, true)
+                                   .adaugaMemorieRAM("Vengeance", "Corsair", 800, 15, 32, 6000, "DDR5")
+                                   .build();
+
+        std::cout << pcGaming << "\n";
+        std::cout << "Performanta totala: " << pcGaming.calculeazaPerformantaTotala() << "\n\n";
+        
+        TestareGaming testGaming;
+        TestareOffice testOffice;
+
+        std::cout << "--- Rezultate Testare ---\n";
+        testGaming.evalueazaSistem(pcGaming);
+        testOffice.evalueazaSistem(pcGaming);
     } 
     catch (const ExceptieHardware& e) 
     {
-        std::cerr << "Capturat exceptie: " << e.what() << "\n\n";
+        std::cerr << "Eroare interceptata: " << e.what() << "\n";
     }
-
-    SistemPC sistemulMeu("Gaming Beast 2026");
-
-    try 
-    {
-        auto cpu = HardwareFactory::getInstance().createProcesor("Ryzen 9", "AMD", 2500, 105, "AM5", 12, 4.2);
-        auto gpu = HardwareFactory::getInstance().createPlacaVideo("RTX 5090", "NVIDIA", 9000, 450, 24, true);
-        auto ram = HardwareFactory::getInstance().createMemorieRAM("Vengeance", "Corsair", 800, 15, 32, 6000, "DDR5");
-
-        sistemulMeu.adaugaPiesa(cpu);
-        sistemulMeu.adaugaPiesa(gpu);
-        sistemulMeu.adaugaPiesa(ram);
-    } 
-    catch (const ExceptieHardware& e) 
-    {
-        std::cerr << "Eroare la crearea componentelor: " << e.what() << "\n";
-    }
-
-    std::cout << sistemulMeu << "\n";
-    std::cout << "Performanta totala a sistemului: " << sistemulMeu.calculeazaPerformantaTotala() << "\n";
 
     return 0;
 }
